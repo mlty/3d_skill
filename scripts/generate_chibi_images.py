@@ -7,7 +7,7 @@ from pathlib import Path
 import time
 
 client = genai.Client(
-    api_key="AIzaSyB6D1PJ9In_dlaXUpKt13H7oQpLX8eSSaY",
+    api_key="XXX",
     http_options=types.HttpOptions(timeout=300_000),
 )
 
