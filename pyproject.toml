@@ -23,7 +23,7 @@ ignore = [
 "tests/*" = ["F401"]  # unused imports OK in tests (conftest side effects)
 
 [tool.ruff.lint.isort]
-known-first-party = ["colorize", "common"]
+known-first-party = ["colorize", "common", "scripts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

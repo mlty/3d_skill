@@ -1,12 +1,21 @@
+# Core
+trimesh>=4.10,<5.0
+numpy>=1.24
+Pillow>=9.0
+scipy>=1.10
+requests>=2.31,<3.0
+
+# Bambu printer control
 bambulabs-api>=2.6,<3.0
 bambu-lab-cloud-api>=1.0,<2.0
 cryptography>=42.0
 paho-mqtt>=2.0
-trimesh>=4.10,<5.0
-requests>=2.31,<3.0
-numpy>=1.24
-Pillow>=9.0
-ddgs>=7.0
-pygltflib
-scipy>=1.10
-manifold3d>=3.0
+
+# 3D model processing
+pygltflib>=0.5,<1.0
+manifold3d>=3.0,<4.0
+pymeshlab
+
+# Search & AI
+ddgs>=7.0,<8.0
+google-genai>=1.0,<2.0

@@ -48,13 +48,13 @@ When a user comes in, figure out three things through natural conversation:
 
 **What** → what do they want to model?
 **Where** → where will it be used? (game / print / PPT)
-**Style** → realistic or Q版手办 (chibi figurine)?
+**Style** → realistic or chibi figurine?
 
-Don't ask these as a checklist. If the user says "我想 3D 打印一个手办", you already
+Don't ask these as a checklist. If the user says "I want to 3D print a figurine", you already
 know the what (figurine), where (printing), and can just confirm style.
 
-If the user is vague ("帮我做个龙"), ask one natural follow-up:
-"做出来是要放游戏里、3D 打印出来、还是放 PPT 里？这三个的技术要求不太一样。"
+If the user is vague ("make me a dragon"), ask one natural follow-up:
+"Is this for a game, 3D printing, or PowerPoint? The technical requirements are quite different."
 
 ### Step 2: Offer Key Choices
 
@@ -62,18 +62,18 @@ Once you know the scenario, offer 2-4 quick choices on the things that matter.
 Don't overwhelm. Keep it like:
 
 ```
-确认几个选项：
+A few quick choices:
 
-1. 风格
-    A 写实   B Q版/手办风
+1. Style
+    A Realistic   B Chibi / Figurine
 
-2. 细节程度
-    A 高细节   B 中等   C 低细节(更快)
+2. Detail Level
+    A High detail   B Medium   C Low detail (faster)
 
-选一下（如：1A 2B），或者直接告诉我你的偏好。
+Pick one (e.g. 1A 2B), or just tell me your preference.
 ```
 
-If the user already gave concrete choices (for example: "50mm 标准 柴犬"), skip this menu and proceed directly.
+If the user already gave concrete choices (e.g. "50mm standard Shiba Inu"), skip this menu and proceed directly.
 
 What choices to offer depends on the scenario:
 
@@ -95,45 +95,45 @@ When a summary is needed, use a brief and clear format:
 
 For **Game Asset**:
 ```
-🎮 即将为你生成游戏资产模型：
-    - 主体：[描述]
-    - 风格：[写实/Q版]
-    - 目标面数：[N] 三角面
-    - 贴图：[尺寸] PBR（含 albedo/normal/roughness/metallic）
-    - 输出格式：[FBX/GLB]
-    - 适用引擎：[Unity/Unreal/Godot/通用]
+🎮 About to generate a game asset model:
+    - Subject: [description]
+    - Style: [realistic / chibi]
+    - Target poly count: [N] triangles
+    - Textures: [size] PBR (albedo/normal/roughness/metallic)
+    - Output format: [FBX/GLB]
+    - Target engine: [Unity/Unreal/Godot/general]
 
-开始生成？
+Proceed with generation?
 ```
 
 For **3D Printing**:
 ```
-🖨️ 即将为你生成 3D 打印模型：
-    - 主体：[描述]
-    - 风格：[写实/Q版]
-    - 目标尺寸：[W] × [D] × [H] mm
-    - 面数：不限（打印无实时渲染限制，越高越平滑）
-    - 输出格式：STL
-    - 打印优化：加厚几何体、减少悬挑、实心结构
-    - 生成后将自动检测水密性、壁厚、底面平整度
+🖨️ About to generate a 3D printing model:
+    - Subject: [description]
+    - Style: [realistic / chibi]
+    - Target size: [W] × [D] × [H] mm
+    - Poly count: unlimited (no real-time rendering constraints; higher = smoother)
+    - Output format: STL
+    - Print optimization: thicker geometry, reduced overhangs, solid forms
+    - Will auto-check watertightness, wall thickness, and base flatness after generation
 
-开始生成？
+Proceed with generation?
 ```
 
 For **PowerPoint**:
 ```
-📊 即将为你生成 PPT 用 3D 模型：
-    - 主体：[描述]
-    - 风格：[写实/Q版]
-    - 目标面数：≤[25K-30K] 三角面
-    - 贴图：1024×1024
-    - 输出格式：GLB（PowerPoint 原生支持）
-    - 文件大小：控制在 10MB 以内
+📊 About to generate a 3D model for PowerPoint:
+    - Subject: [description]
+    - Style: [realistic / chibi]
+    - Target poly count: ≤[25K-30K] triangles
+    - Textures: 1024×1024
+    - Output format: GLB (native PowerPoint support)
+    - File size: kept under 10MB
 
-开始生成？
+Proceed with generation?
 ```
 
-**Prompt**: Write both English and Chinese versions of the generation prompt.
+**Prompt**: Write the generation prompt in English.
 Optimize the prompt for the scenario — e.g., for 3D printing, include phrases like
 "optimized for 3D printing, thicker geometry, reduced overhangs, solid forms."
 
@@ -165,15 +165,15 @@ After any 3D generation, show preview assets first, then let user decide whether
 
 Ask a short decision question:
 ```
-我先给你看 3D 预览（缩略图 + 360 GIF）。
-要继续做检测/交付，还是基于这个结果重新生成？
+Here's the 3D preview (thumbnail + 360 GIF).
+Shall I continue to validation/delivery, or regenerate based on this result?
 ```
 
 Proceed to Step 4 only when user confirms continue.
 
 ---
 
-If user selects **Q版手办风格 (chibi/figurine style)** in Step 2, activate this specialized workflow instead of direct 3D generation.
+If user selects **chibi/figurine style** in Step 2, activate this specialized workflow instead of direct 3D generation.
 
 **Workflow sequence:**
 
@@ -195,10 +195,26 @@ The background should be a solid, minimal color that contrasts clearly with the 
 - MUST render/show the actual generated images (inline images or local file links), not only text labels.
 - Add a short caption for each image so user can quickly compare.
 ```
-我为你生成了 3 个手办风格效果图。请选择你最喜欢的：
+I've generated 3 figurine-style concept images. Pick your favorite:
 [Image 1]  [Image 2]  [Image 3]
-选择（如：图1、图2、图3）
+Choose (e.g. Image 1, Image 2, Image 3)
 ```
+
+**Fallback — when text_2_image fails:**
+If the `text_2_image` call fails (invalid API key, network error, service unavailable, etc.), automatically fall back to local candidate images:
+1. Scan `output/candidates/` for existing image files (`.png`, `.jpg`, `.jpeg`, `.webp`).
+2. If images are found, show them for user selection, same flow as normal generation:
+```
+⚠️ Image generation failed. Loading local candidates from output/candidates/:
+[Image 1]  [Image 2]  ...
+Choose (e.g. Image 1, Image 2), or provide your own image path.
+```
+3. If `output/candidates/` is empty or does not exist, prompt user to provide an image manually:
+```
+⚠️ Image generation failed and no local candidates found.
+Please place a reference image in output/candidates/, or provide an image path directly.
+```
+4. After user selects an image, continue to Step 2.5.2 (image_2_3d).
 
 #### 2.5.2: Convert Selected Image to 3D Model (image_2_3d API)
 
@@ -230,15 +246,15 @@ Show both assets from the ZIP:
 
 Use a concise prompt:
 ```
-3D 预览已生成：
-- 缩略图：model.png
-- 360 预览：model.gif
+3D preview is ready:
+- Thumbnail: model.png
+- 360 preview: model.gif
 
-要继续进入打印检测，还是我按这个方向重新生成一版？
+Shall I continue to print validation, or regenerate in a different direction?
 ```
 
-If user says "继续/可以/就这个", proceed to Step 4.
-If user says "重生/改一下", go back to Step 2 or 2.5 with their feedback.
+If user confirms (e.g. "continue", "looks good", "go ahead"), proceed to Step 4.
+If user wants changes (e.g. "redo", "try again"), go back to Step 2 or 2.5 with their feedback.
 
 ---
 
@@ -252,11 +268,7 @@ After getting the generated model, check it against the scenario's hard requirem
 - Correct format (FBX for Unity/Unreal, GLB for Godot/web)
 
 **3D Printing checks** (run trimesh if in a Python environment):
-- Manifold (watertight) — auto-repair small issues with trimesh
-- Wall thickness ≥1.2mm for FDM
 - Physical dimensions match user's requested size
-- Has a flat base for bed adhesion
-- Flag overhangs >45° (needs supports in slicer)
 
 Read `references/print-validation.md` for the automated validation script.
 
@@ -284,55 +296,55 @@ best version with:
 
 For **Game Asset**:
 ```
-✅ 游戏资产生成完成！
+✅ Game asset generation complete!
 
-📦 文件：[filename.fbx]
-📋 模型参数：
-    - 面数：[实际面数] 三角面（目标 [N]）
-    - 贴图：[尺寸] PBR 全套（albedo ✓ normal ✓ roughness ✓ metallic ✓）
-    - UV：已展开 ✓
-    - 格式：[FBX/GLB] ✓
+📦 File: [filename.fbx]
+📋 Model specs:
+    - Poly count: [actual] triangles (target [N])
+    - Textures: [size] PBR full set (albedo ✓ normal ✓ roughness ✓ metallic ✓)
+    - UV: unwrapped ✓
+    - Format: [FBX/GLB] ✓
 
-可以直接导入 [Unity/Unreal/Godot] 使用。
+Ready to import into [Unity/Unreal/Godot].
 ```
 
 For **3D Printing**:
 ```
-✅ 3D 打印模型生成完成！
+✅ 3D printing model generation complete!
 
-📦 文件：[filename.stl]
-📋 模型检测结果：
-    - 水密性（manifold）：✅ 通过 [已自动修复 / 原生通过]
-    - 壁厚：最薄 [X]mm（≥1.2mm 要求）✅
-    - 尺寸：[W] × [D] × [H] mm ✅
-    - 底面：平整 ✅
-    - 悬挑：[无 / X处需要支撑] ⚠️
+📦 File: [filename.stl]
+📋 Validation results:
+    - Watertight (manifold): ✅ Passed [auto-repaired / natively clean]
+    - Wall thickness: thinnest [X]mm (≥1.2mm requirement) ✅
+    - Dimensions: [W] × [D] × [H] mm ✅
+    - Base: flat ✅
+    - Overhangs: [none / X areas need supports] ⚠️
 
-📋 Print Brief：
-    - 建议层高：[0.12/0.20] mm
-    - 建议填充：[N]%
-    - 支撑：[无需/树状支撑]
-    - 建议材料：[PLA]
+📋 Print Brief:
+    - Suggested layer height: [0.12/0.20] mm
+    - Suggested infill: [N]%
+    - Supports: [none needed / tree supports]
+    - Suggested material: [PLA]
 ```
 
 For **PowerPoint**:
 ```
-✅ PPT 3D 模型生成完成！
+✅ PowerPoint 3D model generation complete!
 
-📦 文件：[filename.glb]
-📋 模型参数：
-    - 面数：[实际面数] 三角面（≤40K 限制）✅
-    - 文件大小：[X] MB（≤10MB 限制）✅
-    - 贴图：[尺寸]，已内嵌 ✅
-    - 格式：GLB ✓
+📦 File: [filename.glb]
+📋 Model specs:
+    - Poly count: [actual] triangles (≤40K limit) ✅
+    - File size: [X] MB (≤10MB limit) ✅
+    - Textures: [size], embedded ✅
+    - Format: GLB ✓
 
-使用方法：PowerPoint → 插入 → 3D 模型 → 从文件，选择此 GLB 文件即可。
+Usage: PowerPoint → Insert → 3D Models → From File, select this GLB file.
 ```
 
 For **3D printing**, also include the full **Print Brief** (see above).
 
 After the delivery summary for **3D Printing**, always ask:
-"是否需要我现在连接 Bambu 打印机并开始打印？"
+"Would you like me to connect the Bambu printer and start printing now?"
 
 ### Step 6: Optional Print via Bambu (3D Printing only)
 
@@ -341,14 +353,70 @@ If the user asks to print now, switch from model delivery to printer workflow.
 **Hard rules (must follow):**
 - NEVER auto-print without explicit user confirmation.
 - MUST show preview before asking for print confirmation.
-- MUST wait for a clear confirmation phrase (for example: "可以打印", "print it", "looks good").
-- If user has not sliced yet, ask them to inspect/slice in Bambu Studio first.
+- MUST wait for a clear confirmation phrase (for example: "go ahead", "print it", "looks good").
 
-**Print sequence:**
-1. Check printer state (online/idle/errors)
-2. Confirm target file and print intent
-3. Start print with confirmed flag
-4. Monitor progress and report key milestones
+**Automated slice + print pipeline (6 sub-steps):**
+
+#### 6.1 Check printer state
+```bash
+python scripts/bambu.py status
+```
+Verify printer is online and idle before proceeding.
+
+#### 6.2 Validate & repair STL
+```bash
+python scripts/analyze.py <model.stl> --repair --keep-main
+```
+Ensure the model is watertight and manifold (target: printability score ≥ 8.0/10).
+Output: repaired/scaled STL file ready for slicing.
+
+#### 6.3 Slice via Bambu Studio CLI
+
+Bambu Studio CLI is used to slice the STL into a printable 3MF with embedded G-code.
+
+**Profile paths** (under `C:\Program Files\Bambu Studio\resources\profiles\BBL\`):
+- Machine: `machine\Bambu Lab H2D 0.4 nozzle.json`
+- Process: `process\0.20mm Balanced Strength @BBL H2D.json`
+- Filament: `filament\Bambu PLA Basic @BBL H2D.json`
+
+> **H2D dual-extruder workaround:** The stock H2D machine profile has `nozzle_diameter: ['0.4', '0.4']` (dual extruder), which causes a "filaments cannot be mapped under auto mode for multi extruder printer" error in CLI slicing. Use a **modified single-nozzle machine profile** (`config/h2d_machine.json`) that sets `nozzle_diameter: ['0.4']` (single entry). This file is a copy of the stock profile with only the nozzle_diameter array trimmed to one element.
+
+**Slice command:**
+```powershell
+$bambu = "C:\Program Files\Bambu Studio\bambu-studio.exe"
+$machine = "config\h2d_machine.json"  # Modified single-nozzle H2D profile
+$process = "C:\Program Files\Bambu Studio\resources\profiles\BBL\process\0.20mm Balanced Strength @BBL H2D.json"
+$filament = "C:\Program Files\Bambu Studio\resources\profiles\BBL\filament\Bambu PLA Basic @BBL H2D.json"
+$stl = "output\model_bundle\model_scaled.stl"
+$output = "output\model_bundle\model_sliced.3mf"
+
+& $bambu --load-settings "$machine;$process" --load-filaments "$filament" --slice 0 --export-3mf "$output" --ensure-on-bed "$stl"
+```
+
+**Verification:** After slicing, check that `model_sliced.3mf` contains `Metadata/plate_1.gcode`:
+```powershell
+python -c "import zipfile; z=zipfile.ZipFile('output/model_bundle/model_sliced.3mf'); [print(f'{i.filename}: {i.file_size//1024} KB') for i in z.infolist() if 'gcode' in i.filename.lower()]"
+```
+If no G-code is found, slicing failed — check error output and retry with adjusted profiles.
+
+#### 6.4 Confirm with user
+
+Show the user:
+- Model preview (thumbnail/gif from model_bundle)
+- Print settings summary (layer height, material, estimated time if available)
+- Ask for explicit confirmation: "Confirm to start printing?"
+
+#### 6.5 Upload & print
+```bash
+python scripts/bambu.py print output/model_bundle/model_sliced.3mf --confirmed
+```
+This uploads via FTP (port 990, implicit FTPS) and sends the MQTT print command.
+
+#### 6.6 Monitor progress
+```bash
+python scripts/bambu.py progress
+python scripts/monitor.py --auto-pause
+```
 
 **Commands (reference):**
 - Status: `python scripts/bambu.py status`
@@ -359,14 +427,15 @@ If the user asks to print now, switch from model delivery to printer workflow.
 
 **Print handoff summary format:**
 ```
-✅ 已开始发送到 Bambu 打印机
+✅ Print job sent to Bambu printer
 
-🖨️ 打印任务： [filename]
-📡 打印机状态： [online/idle/printing]
-📊 当前进度： [X]%
-🧵 材料/颜色： [PLA / AMS 槽位]
+🖨️ Print job: [filename]
+📡 Printer state: [online/idle/printing]
+📊 Progress: [X]%
+🧵 Material/Color: [PLA / AMS slot]
+⚙️ Slice settings: [layer height / infill / supports]
 
-后续我会继续监控；你也可以随时说：暂停、继续、取消。
+I'll keep monitoring. You can say: pause, resume, or cancel at any time.
 ```
 
 ---
@@ -424,5 +493,5 @@ If user asks which API to use, answer neutrally and focus on parameters instead 
 2. **Always deliver a file.** Never end with "sorry, couldn't do it."
 3. **Be honest about limits.** If the model has issues, say what and how to fix.
 4. **Match depth to scenario.** Printing needs more validation. PPT needs less.
-5. **Prompt in both languages.** Give English + Chinese generation prompts when user is Chinese-speaking.
+5. **Prompt in English.** Write generation prompts in English for best API results.
 6. **Prefer execution over repeated questions.** If enough info is already provided, act first and only ask blocking questions.

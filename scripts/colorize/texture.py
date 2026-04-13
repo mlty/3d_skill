@@ -46,7 +46,11 @@ def extract_texture(glb_path):
                 break
             else:
                 img_path = os.path.join(os.path.dirname(glb_path), uri)
-                if os.path.exists(img_path):
+                img_path = os.path.realpath(img_path)
+                glb_dir = os.path.realpath(os.path.dirname(glb_path))
+                if not img_path.startswith(glb_dir + os.sep):
+                    continue  # skip paths outside GLB directory
+                if os.path.exists(img_path) and os.path.isfile(img_path):
                     with open(img_path, "rb") as f:
                         img_data = f.read()
                     break

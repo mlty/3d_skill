@@ -1,4 +1,4 @@
-![Banner](Gemini_Generated_Image_b3hxtzb3hxtzb3hx.png)
+![Banner](assets/banner.png)
 
 # AI 3D Model Generation Skill
 
@@ -33,7 +33,7 @@ An AI agent skill that handles the full 3D model lifecycle through chat:
 
 ## Chibi Figurine Workflow
 
-Special interactive workflow for Q版手办 (chibi/blind box style):
+Special interactive workflow for chibi figurines (blind box style):
 
 1. **text_2_image** — generate 3 candidate images (Pop Mart style)
 2. **User selects** — pick favorite from 3 variations
@@ -57,35 +57,35 @@ Special interactive workflow for Q版手办 (chibi/blind box style):
 ## Example: Chibi Figurine Workflow
 
 ```
-You:   "我想 3D 打印一个 Q版柴犬手办"
+You:   "I want to 3D print a chibi Shiba Inu figurine"
 
-Agent: 已知：what=柴犬, where=3D打印, style=Q版
-       默认高度 80mm，开始生成 3 张候选效果图...
+Agent: Got it: what=Shiba Inu, where=3D printing, style=chibi
+       Default height 80mm, generating 3 candidate images...
 
        text_2_image(chibi_shiba_prompt, count=3)
-       📸 3 张 Pop Mart 风格柴犬效果图
+       📸 3 Pop Mart style Shiba Inu candidate images
 
 You:   "1"
 
        image_2_3d(candidate_1.png, height=80)
        📦 model.stl + model.glb + model.gif
 
-       3D 预览展示：缩略图 + 360° GIF
-       "要继续进入打印检测，还是重新生成？"
+       3D preview: thumbnail + 360° GIF
+       "Proceed to print validation, or regenerate?"
 
-You:   "继续"
+You:   "Proceed"
 
        analyze.py model.stl --height 80 --repair
-       ✅ 水密性通过 | 壁厚 OK | 尺寸 80mm
+       ✅ Watertight OK | Wall thickness OK | Size 80mm
 
-       ✅ 交付 + Print Brief（层高、填充、支撑建议）
-       "是否需要连接 Bambu 打印机开始打印？"
+       ✅ Delivered + Print Brief (layer height, infill, support recommendations)
+       "Would you like to connect to a Bambu printer and start printing?"
 
-You:   "开始打印"
+You:   "Start printing"
 
        bambu.py print model.stl --confirmed
        monitor.py --auto-pause
-       🎉 打印完成！
+       🎉 Print complete!
 ```
 
 ---

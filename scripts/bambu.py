@@ -25,7 +25,7 @@ except ImportError:
 
 # ─── FTP imports (optional dependency) ───
 try:
-    from ftplib import FTP_TLS
+    from ftplib import FTP, FTP_TLS
     import ssl as _ssl_module
     FTP_AVAILABLE = True
 except ImportError:
@@ -282,11 +282,10 @@ def ftp_upload_via_curl(ip, access_code, local_path, remote_filename):
     
     # Use netrc file to avoid exposing credentials in process listing
     import tempfile as _tmp
-    netrc_path = os.path.join(_tmp.gettempdir(), ".bambu_netrc")
+    fd, netrc_path = _tmp.mkstemp(prefix=".bambu_", suffix="_netrc", text=True)
     try:
-        with open(netrc_path, "w") as nf:
+        with os.fdopen(fd, "w") as nf:
             nf.write(f"machine {ip}\nlogin bblp\npassword {access_code}\n")
-        os.chmod(netrc_path, 0o600)
         result = subprocess.run(
             ['curl', '--ftp-ssl-reqd', '--ssl-no-revoke', '-k',
              '--netrc-file', netrc_path,
@@ -618,11 +617,11 @@ class LocalBackend:
                 signed_cmd = cmd
             
             # Publish to MQTT
-            topic = f"device/{self.printer.serial}/request"
+            topic = self.printer.mqtt_client.command_topic
             payload = json.dumps(signed_cmd)
             
             try:
-                self.printer._client.publish(topic, payload)
+                self.printer.mqtt_client._client.publish(topic, payload)
                 print(f"✅ Print started: {remote_filename}")
             except Exception as e:
                 print(f"❌ MQTT publish failed: {e}")
@@ -982,10 +981,10 @@ def cmd_gcode(code):
     except AttributeError:
         # Fallback: direct MQTT publish
         import json as _json
-        topic = f"device/{os.environ.get('BAMBU_SERIAL', _config.get('serial', ''))}/request"
+        topic = b.printer.mqtt_client.command_topic
         payload = {"print": {"command": "gcode_line", "param": code}}
         try:
-            b.printer._client.publish(topic, _json.dumps(payload))
+            b.printer.mqtt_client._client.publish(topic, _json.dumps(payload))
             print(f"📟 G-code sent (MQTT): {code}")
         except Exception as e:
             print(f"❌ G-code error: {e}")

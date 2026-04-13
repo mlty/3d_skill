@@ -1,6 +1,7 @@
 # Secrets & config
 .secrets.json
 config.json
+config/image_gen_api_key.json
 .token_cache.json
 .verify_code
 .env
@@ -27,6 +28,12 @@ htmlcov/
 # IDE & OS
 .DS_Store
 *.bak
+
+# Output artifacts (generated at runtime)
+output/candidates/
+output/model_bundle/
+output/model_bundle_print/
+output/*.zip
 
 # Project outputs
 output/
