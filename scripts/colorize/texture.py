@@ -70,7 +70,8 @@ def extract_texture_blender(glb_path, blender_path):
     from PIL import Image
 
     glb_esc = json.dumps(glb_path)
-    tmp_tex = os.path.join(tempfile.gettempdir(), "bambu_extracted_texture.png")
+    fd, tmp_tex = tempfile.mkstemp(suffix=".png", prefix="bambu_tex_")
+    os.close(fd)
     tex_esc = json.dumps(tmp_tex)
 
     script = f'''
@@ -83,8 +84,8 @@ for img in bpy.data.images:
         print(f"Saved texture: {{img.name}} ({{img.size[0]}}x{{img.size[1]}})")
         break
 '''
-    script_file = os.path.join(tempfile.gettempdir(), "bambu_extract_tex.py")
-    with open(script_file, "w") as f:
+    fd, script_file = tempfile.mkstemp(suffix=".py", prefix="bambu_tex_script_")
+    with os.fdopen(fd, "w") as f:
         f.write(script)
 
     try:

@@ -15,8 +15,9 @@ def main():
     # Load an image
     # image_path = Image.open(file_path)
     image_path = r"XXX"
-
-    url = "http://57.152.82.155:8000/v3/generation3d"
+    
+    # if IP is empty, get it from user input
+    url = "http://xx.xxx.xx.xxx:8000/v3/generation3d"
 
     #image_path = "assets/example_image/T.png"
     image_base64 = encode_image_to_base64(image_path)
@@ -35,7 +36,7 @@ def main():
         "slat_guidance_strength": 3.0,
         "slat_sampling_steps": 12
     }
-    
+
     headers = {
         "Content-Type": "application/json"
     }

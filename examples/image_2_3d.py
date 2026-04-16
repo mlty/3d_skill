@@ -19,7 +19,8 @@ def main():
     # model.gif  — 360-degree rotation preview
     
     image_path = r"xxx.png"
-
+    
+    # if ip is empty, get it from user input
     url = os.environ.get("IMAGE_2_3D_URL", "http://localhost:8000/v3/generation3d")
 
     image_base64 = encode_image_to_base64(image_path)

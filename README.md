@@ -88,6 +88,8 @@ You:   "Start printing"
        🎉 Print complete!
 ```
 
+📄 A full PDF walkthrough of this workflow is available at [`output/Q版柴犬_3D打印流程报告.pdf`](output/Q版柴犬_3D打印流程报告.pdf), covering each step with actual screenshots, candidate images, 3D preview, and recommended print settings.
+
 ---
 
 ## Core Scripts

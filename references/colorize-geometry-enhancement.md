@@ -1,95 +1,95 @@
-# Colorize 几何增强方案 — 眼睛等小特征保护
+# Colorize Geometry Enhancement — Small Feature Protection (Eyes, Buttons, etc.)
 
-## 问题分析
+## Problem Analysis
 
-眼睛、按钮等小特征容易丢失的原因：
+Why small features like eyes and buttons are easily lost:
 
-| 层级 | 原因 |
-|------|------|
-| **贴图** | 像素占比 < min_pct，未被选为独立颜色；或 < island_size 被 cleanup 合并 |
-| **贴图** | preserve_salient_regions 依赖「区域 vs 邻域对比度」，眼睛若与肤色接近会漏掉 |
-| **3D** | 顶点色采样是均匀的，眼睛区域若 UV 拉伸或细分不足，分辨率不够 |
-| **本质** | 当前逻辑纯靠贴图像素，没有利用 3D 几何信息（眼睛通常是凸起） |
+| Level | Cause |
+|-------|-------|
+| **Texture** | Pixel ratio < min_pct, not selected as an independent color; or < island_size, merged during cleanup |
+| **Texture** | preserve_salient_regions relies on "region vs. neighborhood contrast" — eyes close in color to skin tone may be missed |
+| **3D** | Vertex color sampling is uniform; if the eye region has UV stretching or insufficient subdivision, resolution is too low |
+| **Root cause** | Current logic relies purely on texture pixels without leveraging 3D geometry (eyes are typically convex) |
 
-## 可行方案
+## Possible Approaches
 
-### 方案 A：Blender 烘焙曲率图（推荐）
+### Approach A: Blender Curvature Bake (Recommended)
 
-**思路**：眼睛、鼻子、按钮等是**凸面**（高曲率）。在 Blender 中烘焙曲率到纹理，与贴图同 UV，得到一张「几何显著图」。
+**Idea**: Eyes, noses, buttons, etc. are **convex surfaces** (high curvature). Bake curvature to a texture in Blender using the same UV layout, producing a "geometry saliency map".
 
-**流程**：
-1. 导入 GLB → 用 Geometry Nodes 的 Pointiness/Curvature 输出到顶点色
-2. Bake 到 UV 纹理（与 base color 同分辨率）
-3. 在 colorize 中：`protected_mask |= (curvature_map > threshold)`，与现有 preserve_salient_regions 合并
-4. 高曲率区域不参与 island cleanup 和 smoothing
+**Pipeline**:
+1. Import GLB → use Geometry Nodes Pointiness/Curvature output to vertex colors
+2. Bake to UV texture (same resolution as base color)
+3. In colorize: `protected_mask |= (curvature_map > threshold)`, merged with existing preserve_salient_regions
+4. High-curvature regions are excluded from island cleanup and smoothing
 
-**优点**：利用 Blender 内置能力，不依赖 trimesh；曲率与 UV 一一对应  
-**缺点**：多一次 Blender 调用（可与 texture 提取合并）
-
----
-
-### 方案 B：Trimesh 顶点曲率 → UV 栅格化
-
-**思路**：用 trimesh 的 `vertex_defects`（凸=正、凹=负）计算每顶点曲率，再按 UV 栅格化到纹理空间。
-
-**流程**：
-1. 用 pygltflib 解析 GLB：顶点、面、TEXCOORD_0
-2. 用 trimesh 构建 mesh，计算 `vertex_defects`
-3. 对每个面：3 个顶点的 UV 构成三角形，栅格化到纹理，像素值 = max(3 顶点曲率)
-4. 得到 curvature_map，与方案 A 同样并入 protected_mask
-
-**优点**：纯 Python，无需额外 Blender  
-**缺点**：UV 栅格化要自己实现；需处理多材质/多 mesh
+**Pros**: Uses Blender built-in capabilities, no trimesh dependency; curvature maps 1:1 to UV  
+**Cons**: Requires an extra Blender call (can be combined with texture extraction)
 
 ---
 
-### 方案 C：自适应细分（Blender 内）
+### Approach B: Trimesh Vertex Curvature → UV Rasterization
 
-**思路**：在 `apply_vertex_colors` 的 Blender 脚本中，对高曲率区域做更多细分。
+**Idea**: Use trimesh `vertex_defects` (convex=positive, concave=negative) to compute per-vertex curvature, then rasterize to texture space via UV.
 
-**实现**：
-- 用 Geometry Nodes 或 Python 计算每面曲率
-- 对曲率 > 阈值的面做 `subdivide`，其余保持
-- 或：整体多一次 subdivision，但只在高曲率区域
+**Pipeline**:
+1. Parse GLB with pygltflib: vertices, faces, TEXCOORD_0
+2. Build mesh with trimesh, compute `vertex_defects`
+3. For each face: the 3 vertex UVs form a triangle, rasterize to texture, pixel value = max(3 vertex curvatures)
+4. Produce curvature_map, merge into protected_mask (same as Approach A)
 
-**优点**：改动集中在 Blender 脚本  
-**缺点**：面数增加，导出变慢；需要判断「高曲率」的阈值
-
----
-
-### 方案 D：顶点色后处理（OBJ 导出后）
-
-**思路**：导出 OBJ 后，对高曲率顶点重新采样**原始贴图**（非量化版），再 snap 到 8 色。
-
-**流程**：
-1. 导出时保留 UV（`export_uv=True`）
-2. 用 trimesh 加载 OBJ，计算 vertex_defects
-3. 高曲率顶点：用其 UV 从**原始纹理**采样，找最近 8 色之一
-4. 写回 OBJ 的顶点色
-
-**优点**：不改变主流程，作为后处理  
-**缺点**：需要保留并传入原始纹理；OBJ 需带 UV
+**Pros**: Pure Python, no extra Blender dependency  
+**Cons**: UV rasterization must be implemented manually; must handle multi-material/multi-mesh
 
 ---
 
-## 已实现：方案 B（Trimesh + UV 栅格化）
+### Approach C: Adaptive Subdivision (within Blender)
 
-在 colorize v4 中已实现 `--geometry-protect`（默认开启）：
+**Idea**: In the `apply_vertex_colors` Blender script, apply additional subdivision to high-curvature regions.
 
-- 使用 trimesh `vertex_defects` 计算每顶点曲率（凸=正）
-- 将高曲率面栅格化到纹理空间，与 `preserve_salient_regions` 合并
-- 高曲率区域（眼睛、按钮等）不参与 island cleanup 和 smoothing
-- 用 `--no-geometry-protect` 可关闭
+**Implementation**:
+- Use Geometry Nodes or Python to compute per-face curvature
+- Subdivide faces where curvature > threshold, leave the rest unchanged
+- Or: apply one extra global subdivision but only in high-curvature regions
 
-**依赖**：trimesh（已有）、pygltflib（已有）。可选：scikit-image 用于更快三角栅格化。
+**Pros**: Changes are confined to the Blender script  
+**Cons**: Increases face count, slower export; requires a curvature threshold
 
-## 其他方案（未实现）
+---
 
-1. **方案 A**：Blender 烘焙曲率图 — 可与方案 B 叠加
-2. **方案 D**：顶点色后处理 — 作为可选后处理
+### Approach D: Vertex Color Post-processing (after OBJ export)
 
-## 参数建议
+**Idea**: After exporting OBJ, resample high-curvature vertices from the **original texture** (non-quantized), then snap to the 8-color palette.
 
-- 曲率阈值：`vertex_defects > 0.1` 或取 top 5% 凸顶点
-- `preserve_salient_regions` 的 `min_region`：可降到 32，以保留更小眼睛
-- `contrast_delta`：可降到 12，让更多小区域被视为「高对比」
+**Pipeline**:
+1. Export with UV preserved (`export_uv=True`)
+2. Load OBJ with trimesh, compute vertex_defects
+3. High-curvature vertices: sample from **original texture** via UV, find nearest of the 8 colors
+4. Write back to OBJ vertex colors
+
+**Pros**: Does not alter the main pipeline, acts as post-processing  
+**Cons**: Requires retaining and passing the original texture; OBJ must include UV
+
+---
+
+## Implemented: Approach B (Trimesh + UV Rasterization)
+
+Implemented in colorize v4 as `--geometry-protect` (enabled by default):
+
+- Uses trimesh `vertex_defects` to compute per-vertex curvature (convex=positive)
+- Rasterizes high-curvature faces to texture space, merged with `preserve_salient_regions`
+- High-curvature regions (eyes, buttons, etc.) are excluded from island cleanup and smoothing
+- Use `--no-geometry-protect` to disable
+
+**Dependencies**: trimesh (already included), pygltflib (already included). Optional: scikit-image for faster triangle rasterization.
+
+## Other Approaches (Not Implemented)
+
+1. **Approach A**: Blender curvature bake — can be combined with Approach B
+2. **Approach D**: Vertex color post-processing — optional post-processing step
+
+## Recommended Parameters
+
+- Curvature threshold: `vertex_defects > 0.1` or top 5% convex vertices
+- `preserve_salient_regions` `min_region`: can be lowered to 32 to preserve smaller eyes
+- `contrast_delta`: can be lowered to 12 to treat more small regions as "high contrast"

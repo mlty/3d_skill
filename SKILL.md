@@ -220,6 +220,13 @@ Please place a reference image in output/candidates/, or provide an image path d
 
 Once user selects an image, convert it to 3D using the image-to-3D API:
 
+**Pre-check:** Before calling the API, read the environment variable `IMAGE_2_3D_URL`. If it is empty or not set, ask the user to provide the image-to-3D server IP address:
+```
+⚠️ image_2_3d server address is not configured.
+Please provide the server IP (e.g. 192.168.1.100:8000):
+```
+Once the user provides the IP, set `IMAGE_2_3D_URL` to `http://<user_ip>/v3/generation3d` and proceed.
+
 **Call:** `image_2_3d(selected_image, height=[target_height_mm])`
 
 **Output:** API returns a `.zip` package that contains:
