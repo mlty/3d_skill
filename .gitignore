@@ -29,14 +29,15 @@ htmlcov/
 .DS_Store
 *.bak
 
-# Output artifacts (generated at runtime)
-output/candidates/
+# Output artifacts (large files generated at runtime)
+output/*.zip
+output/*.stl
+output/*.glb
+output/*.fbx
+output/*.3mf
+output/*.gcode
 output/model_bundle/
 output/model_bundle_print/
-output/*.zip
-
-# Project outputs
-output/
 *.log
 
 # Agent / skill infrastructure
